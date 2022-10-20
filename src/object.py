@@ -16,6 +16,11 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from typing import (
+    Any,
+    Sequence
+)
+
 from ctypes import (
     c_uint,
     c_ubyte,
@@ -24,7 +29,6 @@ from ctypes import (
     c_ulonglong
 )
 
-from typing import *
 from enum import Enum
 from dataclasses import dataclass
 
@@ -37,6 +41,8 @@ from dataclasses import dataclass
 
 
 class ElfConstants(Enum):
+    """Class-Enumeration holding important ELF constants."""
+
     ELF_MAGIC: bytes = b"\x7fELF"
     ELF_CLASS64: bytes = bytes(0x02)
 
@@ -56,11 +62,8 @@ class ElfConstants(Enum):
     ELF_EM_X86_64: bytes = bytes(0x3E)
 
 class ElfHeader(Structure):
-    """_summary_
+    """Class-Structure containing the ELF header."""
 
-    Args:
-        Structure (_type_): _description_
-    """
     _fields_: Sequence[tuple[str, type[Any]] | tuple[str, type[Any], int]] = [
         ("e_ident", (c_ubyte * 16)),
         ("e_type", c_ushort),
@@ -78,8 +81,23 @@ class ElfHeader(Structure):
         ("e_shstrndx", c_ushort)
     ]
 
+class ElfPhdr(Structure):
+    """Class-Structure containing the ELF Program Header Table."""
+
+    _fields_: Sequence[tuple[str, type[Any]] | tuple[str, type[Any], int]] = [
+        ("p_type", c_uint),
+        ("p_flags", c_uint),
+        ("p_offset", c_ulonglong),
+        ("p_vaddr", c_ulonglong),
+        ("p_paddr", c_ulonglong),
+        ("p_filesz", c_ulonglong),
+        ("p_memsz", c_ulonglong),
+        ("p_align", c_ulonglong)
+    ]
+
 @dataclass
 class ElfObject:
     """Class representation of the ELF file."""
-    
+
     header: ElfHeader = ElfHeader()
+    program_header_table: ElfPhdr = ElfPhdr()
