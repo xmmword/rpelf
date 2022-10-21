@@ -16,21 +16,28 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from ctypes import (
+    Array,
+    c_uint,
+    c_char,
+    c_ubyte,
+    c_ushort,
+    Structure,
+    c_ulonglong,
+    create_string_buffer
+)
+
+from dataclasses import (
+    field,
+    dataclass
+)
+
 from typing import (
     Any,
     Sequence
 )
 
-from ctypes import (
-    c_uint,
-    c_ubyte,
-    c_ushort,
-    Structure,
-    c_ulonglong
-)
-
 from enum import Enum
-from dataclasses import dataclass
 
 
 """
@@ -46,6 +53,9 @@ class ElfConstants(Enum):
     ELF_MAGIC: bytes = b"\x7fELF"
     ELF_CLASS64: bytes = bytes(0x02)
 
+    ELF_PF_X: bytes = bytes(0x1)
+    ELF_PF_R: bytes = bytes(0x4)
+
     ELF_EV_NONE: bytes = bytes(0x00)
     ELF_EV_CURRENT: bytes = bytes(0x01)
 
@@ -59,6 +69,7 @@ class ElfConstants(Enum):
     ELF_DATA2LSB: bytes = bytes(0x01)
     ELF_DATA2MSB: bytes = bytes(0x02)
 
+    ELF_PT_LOAD: bytes = bytes(0x1)
     ELF_EM_X86_64: bytes = bytes(0x3E)
 
 class ElfHeader(Structure):
@@ -81,18 +92,20 @@ class ElfHeader(Structure):
         ("e_shstrndx", c_ushort)
     ]
 
-class ElfPhdr(Structure):
-    """Class-Structure containing the ELF Program Header Table."""
+class ElfShdr(Structure):
+    """Class-Structure containing the ELF Section Header Table."""
 
     _fields_: Sequence[tuple[str, type[Any]] | tuple[str, type[Any], int]] = [
-        ("p_type", c_uint),
-        ("p_flags", c_uint),
-        ("p_offset", c_ulonglong),
-        ("p_vaddr", c_ulonglong),
-        ("p_paddr", c_ulonglong),
-        ("p_filesz", c_ulonglong),
-        ("p_memsz", c_ulonglong),
-        ("p_align", c_ulonglong)
+        ("sh_name", c_uint),
+        ("sh_type", c_uint),
+        ("sh_flags", c_ulonglong),
+        ("sh_addr", c_ulonglong),
+        ("sh_offset", c_ulonglong),
+        ("sh_size", c_ulonglong),
+        ("sh_link", c_uint),
+        ("sh_info", c_uint),
+        ("sh_addralign", c_ulonglong),
+        ("sh_entsize", c_ulonglong)
     ]
 
 @dataclass
@@ -100,4 +113,7 @@ class ElfObject:
     """Class representation of the ELF file."""
 
     header: ElfHeader = ElfHeader()
-    program_header_table: ElfPhdr = ElfPhdr()
+    section_header: ElfShdr = ElfShdr()
+
+    string_table: Array[c_char] = create_string_buffer(0)
+    section_header_table: list[tuple[int, ElfShdr]] = field(default_factory=list)

@@ -21,9 +21,12 @@ from sys import (
     exit
 )
 
-from parser import *
-from typing import NoReturn
+from os       import path
+from typing   import NoReturn
 from colorama import Fore
+
+from parser   import *
+from gadgets  import *
 
 
 """
@@ -34,14 +37,17 @@ from colorama import Fore
 
 
 def main(arguments: list[str]) -> None | NoReturn:
-    exit(f"Usage: {arguments[0]} <elf-file>\n") if len(arguments) < 2 else ...
+    exit("Usage: rpelf.py <elf-binary>\n") if len(arguments) < 2 else ...
 
     elf: ElfParser = ElfParser(arguments[1])
 
-    if not elf.valid:
-        exit(f"{Fore.RED}Fatal Error{Fore.RESET}: The given file is either is not an elf file, or isn't a 64-bit executable!\n")
+    if not path.exists(arguments[1]):
+        exit(f"{Fore.RED}Fatal Error{Fore.RESET}: File '{arguments[1]}' doesn't exist!\n")
 
-    #elf.utils_print_header()
+    if not elf.valid:
+        exit(f"{Fore.RED}Fatal Error{Fore.RESET}: The given file is either isn't an ELF file, or isn't a 64-bit executable!\n")
+
+    scanner: GadgetScanner = GadgetScanner(elf)
 
 if __name__ == "__main__":
     main(argv)

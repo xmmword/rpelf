@@ -17,18 +17,16 @@
 """
 
 from ctypes import (
+    Array,
+    c_char,
     sizeof,
     memmove,
-    addressof
-)
-
-from typing import (
-    IO,
-    Type,
-    TypeVar,
+    addressof,
+    create_string_buffer
 )
 
 from object import *
+from typing import IO
 
 
 """
@@ -38,15 +36,13 @@ from object import *
 """
 
 
-T = TypeVar("T")
-
 class ElfUtils:
 
-    def utils_print_header(instance: Type[T]) -> None:
+    def utils_print_header(instance: type['ElfParser']) -> None:
         """Prints the ELF header information.
 
         Args:
-            instance (Type[T]): The instance of the 'ElfParser' class.
+            instance (type['ElfParser']): The instance of the 'ElfParser' class.
         """
         print(
             "Executable Header Information:\n"
@@ -77,6 +73,7 @@ class ElfParser(ElfUtils, ElfObject):
         Returns:
             None: None.
         """
+        
         self.valid: bool
         self._path: str = path
 
@@ -89,14 +86,16 @@ class ElfParser(ElfUtils, ElfObject):
            return None
 
         self._memory = self._descriptor.read()
-        memmove(addressof(self.header), self._memory, sizeof(self.header))
+        self._elf_parse()
 
         self.valid = self._elf_checkheader()
         if not self.valid:
             return None
 
         self._descriptor.close()
-        self._elf_parse()
+
+        self.section_header_table = self.return_shdr_table((offset := self.header.e_shoff))
+        self.string_table = self.return_str_table()
 
     def _elf_open(self) -> IO[bytes] | None:
         """Attempts to open the file and return a file descriptor.
@@ -115,21 +114,27 @@ class ElfParser(ElfUtils, ElfObject):
         Returns:
             bool: True if the ELF header is valid, False if otherwise.
         """
-        return bool(
+        return bool (
             (bytes(self.header.e_ident[:4]) == ElfConstants.ELF_MAGIC.value)
             and (bytes(self.header.e_ident[4]) == ElfConstants.ELF_CLASS64.value)
             and (bytes(self.header.e_machine) == ElfConstants.ELF_EM_X86_64.value)
         )
 
-    def _elf_parse(self):
-        memmove(
-            addressof(self.program_header_table),
-            self._memory[self.header.e_phoff:],
-            sizeof(self.program_header_table)
+    def _elf_parse(self) -> None:
+        """Parses core components of the ELF file."""
+        ElfParser._memcpy(
+            self.header, 
+            self._memory,
+            None,
+            sizeof(self.header)
         )
 
-        print(f"Data: {hex(self.program_header_table.p_offset)}")
-        return True
+        ElfParser._memcpy(
+            self.section_header,
+            self._memory, 
+            self.header.e_phoff,
+            sizeof(self.section_header)
+        )
 
     def elf_return_type(self) -> str:
         """Parses and returns the type of ELF file.
@@ -180,3 +185,51 @@ class ElfParser(ElfUtils, ElfObject):
                 return "Two's complement, little-endian"
             case _:
                 return "Unknown data format"
+
+    def return_str_table(self) -> Array[c_char]:
+        """Returns the string table.
+
+        Returns:
+            Array[c_char]: The copied string table.
+        """
+        buffer: Array[c_char] = create_string_buffer(
+            self.section_header_table[(self.header.e_shstrndx - 1)][1].sh_size)
+
+        ElfParser._memcpy(
+            buffer,
+            self._memory,
+            self.section_header_table[(self.header.e_shstrndx - 1)][1].sh_offset,
+            self.section_header_table[(self.header.e_shstrndx - 1)][1].sh_size
+        )
+
+        return buffer
+
+    def return_shdr_table(self, offset: int) -> list[tuple[int, ElfShdr]]:
+        """Parses and returns a list representing the program header table.
+
+        Args:
+            offset (int): The offset of the first entry in the program header table.
+
+        Returns:
+            list[tuple[int, ElfPhdr]]: A list representing the program header table.
+        """
+        return [
+            (ElfParser._memcpy(entry, self._memory,
+                (offset := offset + sizeof(entry)), sizeof(entry)), entry)
+            for entry in [ElfShdr() for _ in range(self.header.e_shnum)]
+        ]
+
+    @staticmethod
+    def _memcpy(dst: Any, src: Any, offset: int | None, count: int) -> int:
+        """Copies bytes from one memory block to another.
+
+        Args:
+            dst (Any): The destination buffer.
+            src (Any): The source buffer.
+            offset (int): The source buffer offset.
+            count (int): The amount of bytes to copy.
+
+        Returns:
+            int: The return value of memmove(dst, src, offset, count).
+        """
+        return memmove(addressof(dst), src[offset:], count)
