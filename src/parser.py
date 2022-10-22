@@ -75,7 +75,7 @@ class ElfUtils:
         """Prints all of the discovered ROP gadgets.
 
         Args:
-            section_gadgets (list[list[CsInsn]]): The gadgets discovered within an ELF section.
+            section_gadgets (Gadgets): The gadgets discovered within the ELF section.
         """
         for gadgets in enumerate(section_gadgets):
             if not gadgets[1] or ((gadgets[0] - 1) > 0 and ElfUtils._utils_filter_gadget(
