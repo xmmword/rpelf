@@ -160,7 +160,7 @@ class GadgetScanner:
         Returns:
             Gadgets: A list of ROP gadgets.
         """
-        gadgets: list[tuple[CsInsn]] = []
+        gadgets: Gadgets = []
         
         for instr in enumerate(disassembly):
             if (instr[0] - 1) < 0 or ("ret" not in instr[1].mnemonic
