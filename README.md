@@ -2,7 +2,7 @@
 A 64-bit ELF ROP gadget finder written in Python. 
 
 <div align="center">
-    <img src="https://user-images.githubusercontent.com/105472509/197366603-0a5e60a5-c2d3-42c3-b52c-0f4c8bfa0b0e.png" width="700px"><br>
+    <img src="https://user-images.githubusercontent.com/105472509/197405550-33b89f58-d06a-4c5a-9a4a-9ab6af2e1b51.png" width="700px"><br>
 </div>
 
 ## Description
