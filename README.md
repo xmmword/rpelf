@@ -7,7 +7,7 @@ A 64-bit ELF ROP gadget finder written in Python.
 
 ## Description
 `rpelf` is a tool written in Python that searches for ROP gadgets within a given 64-bit ELF executable. It accomplishes this via parsing the given ELF file's
-header and section header table, reading the bytes of the `.plt`, `.text`, `.init`, and `.fini` into a buffer, disassembling the bytes stored in the buffer,
+header and section header table, reading the bytes of the `.plt`, `.text`, `.init`, and `.fini` ELF sections into a buffer, disassembling the bytes stored in the buffer,
 and then reading the disassembly data to search for possible ROP, JOP, and SYS gadgets.
 
 ### Features
