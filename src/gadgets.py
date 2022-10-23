@@ -35,6 +35,7 @@ from parser import *
 
 GADGETS: tuple[str] = (
     "jo;",
+    "je;",
     "jne;",
     "jmp;",
     "pop;",
@@ -42,6 +43,7 @@ GADGETS: tuple[str] = (
     "syscall;",
     "add;ptr [",
     "mov;ptr ["
+    "sal;ptr [",
 )
 
 class GadgetScanner:
