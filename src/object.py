@@ -53,9 +53,6 @@ class ElfConstants(Enum):
     ELF_MAGIC: bytes = b"\x7fELF"
     ELF_CLASS64: bytes = bytes(0x02)
 
-    ELF_PF_X: bytes = bytes(0x1)
-    ELF_PF_R: bytes = bytes(0x4)
-
     ELF_EV_NONE: bytes = bytes(0x00)
     ELF_EV_CURRENT: bytes = bytes(0x01)
 
