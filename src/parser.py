@@ -27,14 +27,11 @@ from ctypes import (
 
 from typing import (
     IO,
-    TypeVar,
     TypeAlias
 )
 
-from capstone import CsInsn
-from colorama import Fore
-
 from object   import *
+from capstone import CsInsn
 
 
 """
@@ -44,7 +41,6 @@ from object   import *
 """
 
 
-T = TypeVar('T')
 Gadgets: TypeAlias = list[list[CsInsn]]
 
 class ElfUtils:
@@ -82,6 +78,11 @@ class ElfUtils:
                         section_gadgets[gadgets[0] - 1], gadgets[1])):
                 continue
 
+            gadgets[1].reverse()
+            gadgets[1].append(gadgets[1][0])
+
+            del gadgets[1][0]
+
             print(f"Gadget @ [{hex(gadgets[1][0].address)}]")
 
             for instr in gadgets[1]:
@@ -90,11 +91,11 @@ class ElfUtils:
             print()
 
     # Couldn't annotate with type[...] or 'GadgetScanner' due to issues with circular imports.
-    def utils_print_gadgets(instance: type[T]) -> None:
+    def utils_print_gadgets(instance: object) -> None:
         """Prints the discovered gadgets in the .plt, .text, .init, and .fini ELF sections.
 
         Args:
-            instance (type[T]): The instance of the 'GadgetScanner' class.
+            instance (object): The instance of the 'GadgetScanner' class.
         """
         ElfUtils._utils_print_section_gadgets(instance._plt_gadgets)
         ElfUtils._utils_print_section_gadgets(instance._text_gadgets)

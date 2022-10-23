@@ -34,6 +34,8 @@ from dataclasses import (
 
 from typing import (
     Any,
+    final,
+    Final,
     Sequence
 )
 
@@ -47,27 +49,28 @@ from enum import Enum
 """
 
 
+@final
 class ElfConstants(Enum):
     """Class-Enumeration holding important ELF constants."""
 
-    ELF_MAGIC: bytes = b"\x7fELF"
-    ELF_CLASS64: bytes = bytes(0x02)
+    ELF_PT_LOAD:   Final[bytes] = bytes(0x1)
+    ELF_EM_X86_64: Final[bytes] = bytes(0x3E)
 
-    ELF_EV_NONE: bytes = bytes(0x00)
-    ELF_EV_CURRENT: bytes = bytes(0x01)
+    ELF_EV_NONE:    Final[bytes] = bytes(0x00)
+    ELF_EV_CURRENT: Final[bytes] = bytes(0x01)
 
-    ELF_ET_DYN: bytes = bytes(0x03)
-    ELF_ET_REL: bytes = bytes(0x01)
-    ELF_ET_CORE: bytes = bytes(0x04)
-    ELF_ET_EXEC: bytes = bytes(0x02)
-    ELF_ET_NONE: bytes = bytes(0x00)
+    ELF_MAGIC:   Final[bytes] = b"\x7fELF"
+    ELF_CLASS64: Final[bytes] = bytes(0x02)
 
-    ELF_DATANONE: bytes = bytes(0x00)
-    ELF_DATA2LSB: bytes = bytes(0x01)
-    ELF_DATA2MSB: bytes = bytes(0x02)
+    ELF_ET_DYN:  Final[bytes] = bytes(0x03)
+    ELF_ET_REL:  Final[bytes] = bytes(0x01)
+    ELF_ET_CORE: Final[bytes] = bytes(0x04)
+    ELF_ET_EXEC: Final[bytes] = bytes(0x02)
+    ELF_ET_NONE: Final[bytes] = bytes(0x00)
 
-    ELF_PT_LOAD: bytes = bytes(0x1)
-    ELF_EM_X86_64: bytes = bytes(0x3E)
+    ELF_DATANONE: Final[bytes] = bytes(0x00)
+    ELF_DATA2LSB: Final[bytes] = bytes(0x01)
+    ELF_DATA2MSB: Final[bytes] = bytes(0x02)
 
 class ElfHeader(Structure):
     """Class-Structure containing the ELF header."""
