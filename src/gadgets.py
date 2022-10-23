@@ -84,7 +84,7 @@ class GadgetScanner:
             section_header.sh_size
         )
 
-        return GadgetScanner._disassemble_bytes(section_buffer)
+        return self._disassemble_bytes(section_buffer)
 
     def _return_section_header(self, section: str) -> ElfShdr | None:
         """Returns the section header corresponding to the name of the given section.
